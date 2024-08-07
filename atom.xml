@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://felixchen1024.github.io</id>
+    <title>Felixchen1024</title>
+    <updated>2024-08-07T09:41:05.368Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://felixchen1024.github.io"/>
+    <link rel="self" href="https://felixchen1024.github.io/atom.xml"/>
+    <subtitle>Scientists study the world as it is, engineers create the world that never has been.</subtitle>
+    <logo>https://felixchen1024.github.io/images/avatar.png</logo>
+    <icon>https://felixchen1024.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2024, Felixchen1024</rights>
+    <entry>
+        <title type="html"><![CDATA[Ubuntu22.04 Docker部署增加influxdb+emqx]]></title>
+        <id>https://felixchen1024.github.io/post/ubuntu2204-docker-bu-shu-zeng-jia-influxdbemqx/</id>
+        <link href="https://felixchen1024.github.io/post/ubuntu2204-docker-bu-shu-zeng-jia-influxdbemqx/">
+        </link>
+        <updated>2024-08-07T09:36:50.000Z</updated>
+        <summary type="html"><![CDATA[<p>在原有docker compose配置中增加influxdb、emqx，实现一个文件几行命令快速搭建整套系统，真是太香了~</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>在原有docker compose配置中增加influxdb、emqx，实现一个文件几行命令快速搭建整套系统，真是太香了~</p>
+<!-- more -->
+<p>| 以下挂载的目录和文件都需要执行777权限。</p>
+<h1 id="influxdb">influxdb</h1>
+<h2 id="基础信息">基础信息</h2>
+<p>版本：v1.8.10</p>
+<p>账号：admin</p>
+<p>密码：123456</p>
+<h2 id="部署步骤">部署步骤</h2>
+<ol>
+<li>
+<p>初始化配置文件</p>
+<pre><code class="language-bash">docker run --rm influxdb:1.8.10 influxd config &gt; /docker/influxdb/conf/influxdb.conf
+</code></pre>
+</li>
+<li>
+<p>修改配置文件</p>
+<ol>
+<li>
+<p>日志级别</p>
+<pre><code class="language-bash">level = &quot;warn&quot;
+</code></pre>
+</li>
+<li>
+<p>配置登录验证</p>
+<pre><code class="language-bash">auth-enabled = true
+</code></pre>
+</li>
+</ol>
+<ul>
+<li>
+<p>influxdb.conf</p>
+<pre><code class="language-bash">reporting-disabled = false
+bind-address = &quot;127.0.0.1:8088&quot;
+
+[meta]
+  dir = &quot;/var/lib/influxdb/meta&quot;
+  retention-autocreate = true
+  logging-enabled = true
+
+[data]
+  dir = &quot;/var/lib/influxdb/data&quot;
+  index-version = &quot;inmem&quot;
+  wal-dir = &quot;/var/lib/influxdb/wal&quot;
+  wal-fsync-delay = &quot;0s&quot;
+  validate-keys = false
+  strict-error-handling = false
+  query-log-enabled = true
+  cache-max-memory-size = 1073741824
+  cache-snapshot-memory-size = 26214400
+  cache-snapshot-write-cold-duration = &quot;10m0s&quot;
+  compact-full-write-cold-duration = &quot;4h0m0s&quot;
+  compact-throughput = 50331648
+  compact-throughput-burst = 50331648
+  max-series-per-database = 1000000
+  max-values-per-tag = 100000
+  max-concurrent-compactions = 0
+  max-index-log-file-size = 1048576
+  series-id-set-cache-size = 100
+  series-file-max-concurrent-snapshot-compactions = 0
+  trace-logging-enabled = false
+  tsm-use-madv-willneed = false
+
+[coordinator]
+  write-timeout = &quot;10s&quot;
+  max-concurrent-queries = 0
+  query-timeout = &quot;0s&quot;
+  log-queries-after = &quot;0s&quot;
+  max-select-point = 0
+  max-select-series = 0
+  max-select-buckets = 0
+
+[retention]
+  enabled = true
+  check-interval = &quot;30m0s&quot;
+
+[shard-precreation]
+  enabled = true
+  check-interval = &quot;10m0s&quot;
+  advance-period = &quot;30m0s&quot;
+
+[monitor]
+  store-enabled = true
+  store-database = &quot;_internal&quot;
+  store-interval = &quot;10s&quot;
+
+[subscriber]
+  enabled = true
+  http-timeout = &quot;30s&quot;
+  insecure-skip-verify = false
+  ca-certs = &quot;&quot;
+  write-concurrency = 40
+  write-buffer-size = 1000
+
+[http]
+  enabled = true
+  bind-address = &quot;:8086&quot;
+  auth-enabled = true
+  log-enabled = true
+  suppress-write-log = false
+  write-tracing = false
+  flux-enabled = false
+  flux-log-enabled = false
+  pprof-enabled = true
+  pprof-auth-enabled = false
+  debug-pprof-enabled = false
+  ping-auth-enabled = false
+  prom-read-auth-enabled = false
+  https-enabled = false
+  https-certificate = &quot;/etc/ssl/influxdb.pem&quot;
+  https-private-key = &quot;&quot;
+  max-row-limit = 0
+  max-connection-limit = 0
+  shared-secret = &quot;&quot;
+  realm = &quot;InfluxDB&quot;
+  unix-socket-enabled = false
+  unix-socket-permissions = &quot;0777&quot;
+  bind-socket = &quot;/var/run/influxdb.sock&quot;
+  max-body-size = 25000000
+  access-log-path = &quot;&quot;
+  max-concurrent-write-limit = 0
+  max-enqueued-write-limit = 0
+  enqueued-write-timeout = 30000000000
+
+[logging]
+  format = &quot;auto&quot;
+  level = &quot;warn&quot;
+  suppress-logo = false
+
+[[graphite]]
+  enabled = false
+  bind-address = &quot;:2003&quot;
+  database = &quot;graphite&quot;
+  retention-policy = &quot;&quot;
+  protocol = &quot;tcp&quot;
+  batch-size = 5000
+  batch-pending = 10
+  batch-timeout = &quot;1s&quot;
+  consistency-level = &quot;one&quot;
+  separator = &quot;.&quot;
+  udp-read-buffer = 0
+
+[[collectd]]
+  enabled = false
+  bind-address = &quot;:25826&quot;
+  database = &quot;collectd&quot;
+  retention-policy = &quot;&quot;
+  batch-size = 5000
+  batch-pending = 10
+  batch-timeout = &quot;10s&quot;
+  read-buffer = 0
+  typesdb = &quot;/usr/share/collectd/types.db&quot;
+  security-level = &quot;none&quot;
+  auth-file = &quot;/etc/collectd/auth_file&quot;
+  parse-multivalue-plugin = &quot;split&quot;
+
+[[opentsdb]]
+  enabled = false
+  bind-address = &quot;:4242&quot;
+  database = &quot;opentsdb&quot;
+  retention-policy = &quot;&quot;
+  consistency-level = &quot;one&quot;
+  tls-enabled = false
+  certificate = &quot;/etc/ssl/influxdb.pem&quot;
+  batch-size = 1000
+  batch-pending = 5
+  batch-timeout = &quot;1s&quot;
+  log-point-errors = true
+
+[[udp]]
+  enabled = false
+  bind-address = &quot;:8089&quot;
+  database = &quot;udp&quot;
+  retention-policy = &quot;&quot;
+  batch-size = 5000
+  batch-pending = 10
+  read-buffer = 0
+  batch-timeout = &quot;1s&quot;
+  precision = &quot;&quot;
+
+[continuous_queries]
+  log-enabled = true
+  enabled = true
+  query-stats-enabled = false
+  run-interval = &quot;1s&quot;
+
+[tls]
+  min-version = &quot;&quot;
+  max-version = &quot;&quot;
+
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>docker compose配置</p>
+<pre><code class="language-yaml">  influxdb:
+    image: influxdb:1.8.10
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - &quot;8086:8086&quot;
+    volumes:
+      - /docker/influxdb/data:/var/lib/influxdb
+      - /docker/influxdb/conf:/etc/influxdb:ro
+    environment:
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=123456
+    logging:
+      driver: &quot;json-file&quot;
+      options:
+        max-size: &quot;10m&quot;
+        max-file: &quot;3&quot;
+    privileged: true
+    network_mode: &quot;host&quot;
+</code></pre>
+</li>
+</ol>
+<h1 id="emqx">emqx</h1>
+<h2 id="基础信息-2">基础信息</h2>
+<p>版本：v5.7</p>
+<p>账号：admin</p>
+<p>密码：public</p>
+<h2 id="部署步骤-2">部署步骤</h2>
+<ol>
+<li>docker compose配置<pre><code class="language-yaml"> emqx:
+    image: emqx:5.7
+    container_name: emqx
+    restart: unless-stopped
+    ports:
+    - &quot;1883:1883&quot;
+    - &quot;18083:18083&quot;
+    volumes:
+    - /docker/emqx/data:/opt/emqx/data
+    - /docker/emqx/log:/opt/emqx/log
+    logging:
+    driver: &quot;json-file&quot;
+    options:
+        max-size: &quot;10m&quot;
+        max-file: &quot;3&quot;
+    privileged: true
+    network_mode: host
+</code></pre>
+</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Ubuntu22.04搭建Docker发布环境]]></title>
+        <id>https://felixchen1024.github.io/post/ubuntu2204-da-jian-docker-fa-bu-huan-jing/</id>
+        <link href="https://felixchen1024.github.io/post/ubuntu2204-da-jian-docker-fa-bu-huan-jing/">
+        </link>
+        <updated>2024-08-06T09:56:57.000Z</updated>
+        <summary type="html"><![CDATA[<p>Docker一直是部署各种中间件的利器，很久以来一直想实现docker compose来部署前后端应用+各种中间件，近期有空，终于可以列入计划。因为测试环境和生产环境都有很多服务，所以单独开一个Ubuntu虚拟机来进行练手。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>Docker一直是部署各种中间件的利器，很久以来一直想实现docker compose来部署前后端应用+各种中间件，近期有空，终于可以列入计划。因为测试环境和生产环境都有很多服务，所以单独开一个Ubuntu虚拟机来进行练手。</p>
+<!-- more -->
+<p>| 以下操作为root权限。</p>
+<h1 id="一-基础环境">一、基础环境</h1>
+<ul>
+<li>
+<p>VMware 15 Pro</p>
+</li>
+<li>
+<p>ubuntu-22.04.1-live-server-amd64.iso</p>
+</li>
+<li>
+<p>虚拟机资源</p>
+<ul>
+<li>CPU：8核</li>
+<li>内存：16G</li>
+<li>硬盘：100G</li>
+</ul>
+</li>
+<li>
+<p>apt换国内源</p>
+<ul>
+<li><a href="https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/">清华源</a></li>
+</ul>
+<pre><code class="language-bash"># 备份
+cp /etc/apt/sources.list /etc/apt/sources.list.bk
+
+# 用清华源替换后保存
+vim /etc/apt/sources.list
+</code></pre>
+</li>
+<li>
+<p>固定IP</p>
+<pre><code class="language-bash"># 根据配置修改，主要是IP和网关，修改后保存
+vim /etc/netplan/00-installer-config.yaml
+
+# 应用设置
+netplan apply
+
+# 打印IP
+ip addr show ens33
+</code></pre>
+<pre><code class="language-bash">network:
+  renderer: networkd
+  ethernets:
+    ens33:
+      addresses:
+        - 192.168.40.221/24
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+      routes:
+        - to: default
+          via: 192.168.40.254
+  version: 2
+</code></pre>
+</li>
+<li>
+<p>开启root登录</p>
+<pre><code class="language-bash"># 设置root密码
+sudo passwd root
+
+# 编辑ssh配置文件
+sudo vim /etc/ssh/sshd_config
+
+# 修改以下配置
+PermitRootLogin yes
+
+# 重启ssh服务
+sudo systemctl restart ssh
+</code></pre>
+</li>
+</ul>
+<h1 id="二-安装dockerdocker-compose">二、安装Docker+Docker-Compose</h1>
+<p><a href="https://get.docker.com/">官方一键安装脚本</a></p>
+<pre><code class="language-bash"># 修改权限
+chmod +x install_docker.sh
+
+# 安装，使用阿里云镜像
+bash install_docker.sh docker --mirror Aliyun
+
+# 改为国内源，参考以下配置
+vim /etc/docker/daemon.json
+
+# 启动
+service docker start
+
+# 打印docker状态和版本
+systemctl status docker
+docker version
+
+# 打印docker-compose版本
+docker compose version
+
+# 开机启动
+systemctl enable docker
+</code></pre>
+<p>daemon.json</p>
+<pre><code class="language-json">{
+    &quot;registry-mirrors&quot;: [
+        &quot;https://hub.uuuadc.top&quot;, 
+        &quot;https://docker.anyhub.us.kg&quot;, 
+        &quot;https://dockerhub.jobcher.com&quot;, 
+        &quot;https://dockerhub.icu&quot;, 
+        &quot;https://docker.ckyl.me&quot;, 
+        &quot;https://docker.awsl9527.cn&quot;
+    ]
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WSL安装ubuntu24.04 LTS]]></title>
+        <id>https://felixchen1024.github.io/post/wsl-an-zhuang-ubuntu2404-lts/</id>
+        <link href="https://felixchen1024.github.io/post/wsl-an-zhuang-ubuntu2404-lts/">
+        </link>
+        <updated>2024-08-06T09:47:50.000Z</updated>
+        <summary type="html"><![CDATA[<p>之前用WSL装过ubutu20.04 LTS，没有实际结合项目来使用，正好这次重装一下，升级到24.04，体验一下除了VMware以外的虚拟机。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>之前用WSL装过ubutu20.04 LTS，没有实际结合项目来使用，正好这次重装一下，升级到24.04，体验一下除了VMware以外的虚拟机。</p>
+<!-- more -->
+<h1 id="一-安装">一、安装</h1>
+<ol>
+<li>Microsoft Store中搜索ubuntu24.04 LTS点击“获取”，即可自动下载安装</li>
+</ol>
+<h1 id="二-固定ip">二、固定IP</h1>
+<blockquote>
+<p>以下采用固定以太网口IP的方式。</p>
+</blockquote>
+<ol>
+<li>
+<p>配置虚拟交换机</p>
+<ol>
+<li>
+<p>打开Hyper-V 管理器-虚拟交换机管理器<br>
+<img src="https://felixchen1024.github.io/post-images/1722937814542.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>修改配置<br>
+<img src="https://felixchen1024.github.io/post-images/1722937825139.png" alt="" loading="lazy"></p>
+ <aside>
+ 💡 如果是创建，可能出现失败，可以找到WLAN/以太网属性，关闭连接共享
+ </aside>
+</li>
+</ol>
+</li>
+<li>
+<p>修改.wslconfig配置文件（中文可能需要去掉，启动时报错）</p>
+<pre><code class="language-yaml">; 这是 WSL 2 的配置文件
+ 
+[wsl2]
+processors=4                            ; 设置 WSL 2 可以使用的最大 CPU 核心数为 4，自行修改
+memory=4GB                              ; 设置 WSL 2 可以使用的最大内存量为 4 GB，自行修改
+swap=4GB                                ; 设置 WSL 2 的交换空间大小为 4 GB，自行修改
+localhostForwarding=true                ; 允许本地主机转发
+networkingMode=bridged                  ; 设置网络模式为桥接模式
+vmSwitch=WSL                            ; 指定使用的虚拟交换机为 &quot;WSL&quot;，这里填虚拟交换机的名称
+ipv6=true                               ; 启用 IPv6 支持
+dhcp=false                              ; 禁用 DHCP，手动设置网络配置
+ 
+[experimental]
+autoMemoryReclaim=gradual               ; 慢慢回收内存
+autoProxy=true                          ; 启用自动代理设置
+</code></pre>
+</li>
+<li>
+<p>虚拟机中，创建/etc/netplan目录下生成net.yaml文件</p>
+<pre><code class="language-yaml">network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses:
+        - 192.168.40.133/24   # 设置一个不与主机相同的IP地址
+      gateway4: 192.168.40.254  # 设置网关地址
+      nameservers:           #dns服务，这下面可以跟我一样
+          addresses:
+              - 8.8.8.8
+              - 8.8.4.4
+              - 114.114.114.114
+</code></pre>
+</li>
+<li>
+<p>启用网络配置</p>
+<pre><code class="language-bash"># 应用网络配置
+netplan apply
+
+# 关闭终端后，重新打开ubuntu24.04 LTS，打印网络信息
+ip addr show ens33
+</code></pre>
+</li>
+<li>
+<p>最终确认配置文件</p>
+<pre><code class="language-bash"># 生效后，文件名称出现变化
+vi /etc/netplan/00-installer-config.yaml
+</code></pre>
+</li>
+</ol>
+<h1 id="三-修改存储路径">三、修改存储路径</h1>
+<p>wsl默认安装在c盘，占用C盘空间，故有必要移动到其他盘符。</p>
+<pre><code class="language-bash"># 查看WSL发行版本
+wsl -l --all -v
+
+# 导出为tar文件
+wsl --export Ubuntu-24.04 e:\wsl-ubuntu24.04.tar
+
+# 注销当前分发版
+wsl --unregister Ubuntu-24.04
+
+# 重新导入并安装WSL在e:\wsl-ubuntu24.04
+wsl --import Ubuntu-24.04 e:\wsl-ubuntu24.04 d:\wsl-ubuntu24.04.tar --version 2
+
+# 删除tar文件
+del e:\wsl-ubuntu24.04.tar
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Git日常使用整理]]></title>
+        <id>https://felixchen1024.github.io/post/git-ri-chang-shi-yong-zheng-li/</id>
+        <link href="https://felixchen1024.github.io/post/git-ri-chang-shi-yong-zheng-li/">
+        </link>
+        <updated>2024-08-05T03:16:20.000Z</updated>
+        <summary type="html"><![CDATA[<p>作为一只程序猿，相信大家对于 Git 都不陌生了，所以这里就省略一大段简介，直接进入主题吧：写这篇其实就是个人日常的 Git 配置整理，类似备忘录吧，如果正好对你有帮助，那也是乐意之至。</p>
+<p>如果你对于 Git 还不是很了解，请先阅读 <strong>Pro Git（中文版）</strong> 中的第一章。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>作为一只程序猿，相信大家对于 Git 都不陌生了，所以这里就省略一大段简介，直接进入主题吧：写这篇其实就是个人日常的 Git 配置整理，类似备忘录吧，如果正好对你有帮助，那也是乐意之至。</p>
+<p>如果你对于 Git 还不是很了解，请先阅读 <strong>Pro Git（中文版）</strong> 中的第一章。</p>
+<!--more-->
+<h3 id="git-配置">Git 配置</h3>
+<p>对于 Github 以及 Gitee 都可以，注册后需要记住邮箱和用户名。</p>
+<p>这里提一点：Github 用户多，资源也多，但是国内访问速度会稍微“慢”一小点，所以日常使用中，更多的是 Github 和 Gitee 双修。</p>
+<p>个人建议：两个平台使用相同账号和用户名，至于为什么？先留个悬念，后面再来打开这个彩蛋。</p>
+<h4 id="情况一两个平台的用户名和邮箱都一样">情况一：两个平台的用户名和邮箱都一样</h4>
+<p>配置账号信息</p>
+<pre><code class="language-shell"># 假设注册成功的账号如下，下文将以此举例，实际使用中替换一下即可。
+name: 123
+email: 123@qq.com
+</code></pre>
+<p>安装 Git 之后，需要对 Git 进行一些简单配置才能正式使用。</p>
+<pre><code class="language-shell"># 打开 Git Bash
+# 配置用户名
+$ git config --global user.name &quot;123&quot;  # 123 替换为自己的用户名
+# 配置邮箱
+$ git config --global user.email &quot;123@qq.com&quot;  # 123@qq.com 替换为自己的邮箱
+# 检查输入是否正确
+$ git config -l
+</code></pre>
+<p>配置 SSH-Key</p>
+<p>这里就先来打开我们之前预留的彩蛋吧，如果你的 Github 和 Gitee 用户名和邮箱是一样，那恭喜你，生成一个 SSH-Key，两个平台都可以用；如果是不一样，也没多大问题，就需要稍微开发下”自我动手能力“，后面再具体介绍。</p>
+<pre><code class="language-shell"># 生成 SSH-Key
+$ ssh-keygen -t rsa -C '123@qq.com' -f ~/.ssh/id_rsa  # 123@qq.com 替换为自己的邮箱
+# 打印 SSH-Key
+$ cat ~/.ssh/id_rsa.pub
+</code></pre>
+<p>拷贝终端中打印的 SSH-Key，然后到网页中进行配置关联即可。</p>
+<ul>
+<li>Github：[Settings] -&gt; [SSH and GPG keys] -&gt; [New SSH Key]</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://felixchen1024.github.io/post-images/1722937992862.png" alt="" loading="lazy"></figure>
+<pre><code class="language-shell">$ ssh -T git@github.com # 测试一下，是否添加成功
+</code></pre>
+<ul>
+<li>Gitee：[设置] -&gt; [SSH 公钥]</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://felixchen1024.github.io/post-images/1722938005551.png" alt="" loading="lazy"></figure>
+<pre><code class="language-shell">$ ssh -T git@gitee.com # 测试一下，是否添加成功
+</code></pre>
+<h4 id="情况二两个平台的用户名和邮箱不一样">情况二：两个平台的用户名和邮箱不一样</h4>
+<p>两个平台的用户名和邮箱不一样的情况，就需要配置 2 个账号信息以及 2 个 SSH-Key。</p>
+<p>配置 2 个账号信息</p>
+<pre><code class="language-shell"># 假设注册成功的账号如下，下文将以此举例，实际使用中替换一下即可。
+# Github
+name: 123
+email: 123@qq.com
+# Gitee
+name: 456
+email: 456@qq.com
+</code></pre>
+<p>生成 2 个 SSH-Key</p>
+<pre><code class="language-shell">$ ssh-keygen -t rsa -C '123@qq.com' -f ~/.ssh/github_id_rsa  # 生成 Github SSH-Key
+$ ssh-keygen -t rsa -C '456@qq.com' -f ~/.ssh/gitee_id_rsa  # 生成 Gitee SSH-Key 
+</code></pre>
+<p>查看 <em>~/ssh</em> 目录下是否有一个 config 文件，如果没有则新建一个，添加如下内容（Host 和 HostName 指定 Git 服务器的域名，IdentityFile 指定私钥的路径）。</p>
+<pre><code class="language-shell"># 顺带提一句，记得保存 UTF-8 编码
+# github
+Host github.com
+Port 22
+HostName github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/github_id_rsa  # 根据自己路径修改
+User 123
+
+# gitee
+Host gitee.com
+Port 22
+HostName gitee.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/gitee_id_rsa  # 根据自己路径修改
+User 456
+</code></pre>
+<pre><code class="language-shell"># 分别测试一下，是否添加成功
+$ ssh -T git@github.com
+$ ssh -T git@gitee.com
+</code></pre>
+<h4 id="小结">小结</h4>
+<p>至此，两种情况小笔记已 Over，是不是觉得很简单呢？相信大家也配置成功，是不是有了小小成就感。</p>
+<p>正所谓磨刀不误砍柴工，有了趁手的工具，才能更好的埋头撸代码，你说是不是呢？( • ̀ω•́ )✧</p>
+<h3 id="git-工具推荐">Git 工具推荐</h3>
+<ul>
+<li>SourceTree</li>
+</ul>
+<h3 id="git-工作流">Git 工作流</h3>
+<p><strong>背景</strong></p>
+<p>能够提交代码就自以为把 Git 环境玩的很溜了，自我感觉良好中。。。</p>
+<p>可是老师今天布置的作业是结合分支讲讲 Git 在实际项目中该怎么用。</p>
+<p>分支是什么鬼，头好大，有没有学霸带飞一下。。。༼༎ຶᴗ༎ຶ༽（脑子一片空白）</p>
+<p>终于，柳暗花明又一村ヾ(◍°∇°◍)ﾉﾞ</p>
+<p>真是天无绝人之路啊，感谢这位<a href="https://nvie.com/about/">Vincent Driessen</a>同学（学霸就是吊），把老师作业完成的这么好，连例子都给了，真贴心，我等学渣的仰慕之情如滔滔江水，在此省略五千字......</p>
+<p><a href="https://nvie.com/posts/a-successful-git-branching-model/">A successful Git branching model</a></p>
+<h4 id="git-flow-常用的分支">Git Flow 常用的分支</h4>
+<ul>
+<li>Production 分支</li>
+</ul>
+<p>也就是我们经常使用的 Master 分支，这个分支最近发布到生产环境的代码，最近发布的 Release， 这个分支只能从其他分支合并，不能在这个分支直接修改。</p>
+<ul>
+<li>Develop 分支</li>
+</ul>
+<p>这个分支是我们是我们的主开发分支，包含所有要发布到下一个 Release 的代码，这个主要合并与其他分支，比如 Feature 分支。</p>
+<ul>
+<li>Feature 分支</li>
+</ul>
+<p>这个分支主要是用来开发一个新的功能，一旦开发完成，我们合并回 Develop 分支进入下一个 Release。</p>
+<ul>
+<li>Release分支</li>
+</ul>
+<p>当你需要一个发布一个新 Release 的时候，我们基于 Develop 分支创建一个 Release 分支，完成 Release 后，我们合并到 Master 和 Develop 分支。</p>
+<ul>
+<li>Hotfix分支</li>
+</ul>
+<p>当我们在 Production 发现新的 Bug 时候，我们需要创建一个 Hotfix，完成 Hotfix 后，我们合并回 Master 和 Develop 分支，所以 Hotfix 的改动会进入下一个 Release。</p>
+<h3 id="git-资料收录">Git 资料收录</h3>
+<h4 id="pro-git中文版">Pro Git（中文版）</h4>
+<p>https://gitee.com/progit/index.html</p>
+<p>如果没有接触过 Git 的小伙伴，建议先把下面链接中的中文资料过一遍。</p>
+<p>不管新手、老手都可以放心食用，每次都有新收获。</p>
+<p>在此感谢码云提供的资料。</p>
+<h3 id="git-问题收录">Git 问题收录</h3>
+<h4 id="gitignore修改不起作用">.gitignore修改不起作用</h4>
+<pre><code class="language-shell">$ git rm -r --cached . 
+$ git add .
+$ git commit -m &quot;update gitignore&quot;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Hello Blog]]></title>
+        <id>https://felixchen1024.github.io/post/hello-blog/</id>
+        <link href="https://felixchen1024.github.io/post/hello-blog/">
+        </link>
+        <updated>2024-07-24T03:26:57.000Z</updated>
+        <summary type="html"><![CDATA[<blockquote>
+<p>“天空没留下翅膀的痕迹，但我已飞过。”</p>
+</blockquote>
+<p>一直有写点东西，记录所思所想所学的冲动，也尝试过许多记录方式，但一直没能坚持下来。</p>
+<p>这次重新出发，立下 Flag ，希望可以长久坚持下去。</p>
+<p>在将来某一天回首，能有点值得回忆的东西。</p>
+]]></summary>
+        <content type="html"><![CDATA[<blockquote>
+<p>“天空没留下翅膀的痕迹，但我已飞过。”</p>
+</blockquote>
+<p>一直有写点东西，记录所思所想所学的冲动，也尝试过许多记录方式，但一直没能坚持下来。</p>
+<p>这次重新出发，立下 Flag ，希望可以长久坚持下去。</p>
+<p>在将来某一天回首，能有点值得回忆的东西。</p>
+<!-- more -->
+]]></content>
+    </entry>
+</feed>

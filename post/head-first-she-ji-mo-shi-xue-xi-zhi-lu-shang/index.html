@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Head First设计模式学习之路（上） | Felixchen1024</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://felixchen1024.github.io/favicon.ico?v=1723023636606">
+<link rel="stylesheet" href="https://felixchen1024.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="设计模式，正所谓程序猿的内功所在，膜拜已久，一直偷懒、拖延（省略五千字理由），终于鼓起勇气来好好过一遍。之前，看了四人帮的《设计模式》，可谓是云里雾里，可能实际工作接触太少，概括来说就太菜。但是《Head First设计模式》就大大降低了入..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://felixchen1024.github.io">
+        <img src="https://felixchen1024.github.io/images/avatar.png?v=1723023636606" class="site-logo">
+        <h1 class="site-title">Felixchen1024</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Felixchen1024" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Scientists study the world as it is, engineers create the world that never has been.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://felixchen1024.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Head First设计模式学习之路（上）</h2>
+            <div class="post-date">2024-07-24 10:55:44</div>
+            
+            <div class="post-content" v-pre>
+              <p>设计模式，正所谓程序猿的内功所在，膜拜已久，一直偷懒、拖延（省略五千字理由），终于鼓起勇气来好好过一遍。之前，看了四人帮的《设计模式》，可谓是云里雾里，可能实际工作接触太少，概括来说就太菜。但是《Head First设计模式》就大大降低了入门难度了，真是感谢这样的好书。在这里还推荐一个老外的视频，配合学习，效果更好。</p>
+<!--more-->
+<p>附上视频链接：https://www.bilibili.com/video/BV117411p7Uc</p>
+<p>最终，看书还是要落到代码才能切身体会了，所以下面就开撸了。</p>
+<h2 id="1-strategy-pattern-策略模式">1. Strategy Pattern 策略模式</h2>
+<pre><code class="language-python"># 策略模式：定义算法族，分别封装起来，让它们之间可以互相替换，此模式让算法的编号独立于使用算法的客户。
+# 面向对象（OO）基础：抽象、封装、多态、继承
+# 设计原则：封装变化。
+# 设计原则：多用组合，少用继承。
+# 设计原则：针对接口编程，而不是针对实现编程。
+
+# 代码实现
+from abc import ABC, abstractmethod
+
+
+# 飞行行为（接口类）
+class IFlyBehavior(ABC):
+    @abstractmethod
+    def fly(self):
+        pass
+
+
+# 飞行行为 - 有翅膀飞行（实现类）
+class FlyWithWings(IFlyBehavior):
+    def fly(self):
+        print('用翅膀飞')
+
+
+# 飞行行为 - 不会飞（实现类）
+class FlyNoWay(IFlyBehavior):
+    def fly(self):
+        print('不会飞')
+
+
+# 叫的行为（接口类）
+class IQuackBehavior(ABC):
+    @abstractmethod
+    def quack(self):
+        pass
+
+
+# 叫的行为 - 呱呱叫（实现类）
+class Quack(IQuackBehavior):
+    def quack(self):
+        print('呱呱叫')
+
+
+# 叫的行为 - 吱吱叫（实现类）
+class Squeak(IQuackBehavior):
+    def quack(self):
+        print('吱吱叫')
+
+
+# 鸭子类
+class Duck:
+    def __init__(self):
+        self.display_name = '鸭子'
+        self.fly_behavior = IFlyBehavior()
+        self.quack_behavior = IQuackBehavior()
+
+    def display(self):
+        print(self.display_name)
+
+    def perform_fly(self):
+        self.fly_behavior.fly()
+
+    def perform_quack(self):
+        self.quack_behavior.quack()
+
+
+# 野鸭
+class MallardDuck(Duck):
+    def __init__(self):
+        self.display_name = '野鸭'
+        self.fly_behavior = FlyWithWings()
+        self.quack_behavior = Quack()
+
+
+if __name__ == '__main__':
+    md = MallardDuck()
+    md.display()
+    md.perform_fly()
+    md.perform_quack()
+
+</code></pre>
+<h2 id="2-observer-pattern观察者模式">2. Observer Pattern观察者模式</h2>
+<h3 id="push">Push</h3>
+<pre><code class="language-python"># 观察者模式：在对象之间定义一对多的依赖，这样一来，当一个对象改变状态，依赖它的对象都会受到通知，并自动更新。
+# Push模型实现
+# 设计原则：为了交互对象之间的松耦合设计而努力。
+
+# 代码实现
+from abc import ABC, abstractmethod
+
+
+# 主题（接口类）
+# Push模型
+class ISubject(ABC):
+    @abstractmethod
+    def register(self, observer):
+        pass
+
+    @abstractmethod
+    def remove(self, observer):
+        pass
+
+    # Push模型中，信息通过notify主动推给所有观察者
+    @abstractmethod
+    def notify(self, message):
+        pass
+
+
+# 观察者（接口类）
+class IObserver(ABC):
+    def __init__(self, subject):
+        self.subject = subject
+        self.subject.register(self)
+
+    @abstractmethod
+    def display(self):
+        pass
+
+    @abstractmethod
+    def update(self, message):
+        pass
+
+
+# 主题 - 天气气象站（实现类）
+class WeatherData(ISubject):
+    def __init__(self):
+        self.observers = []
+
+    def register(self, observer: IObserver):
+        self.observers.append(observer)
+
+    def remove(self, observer: IObserver):
+        self.observers.remove(observer)
+
+    def notify(self, message):
+        for observer in self.observers:
+            observer.update(message)
+
+
+# 观察者 - 当前观测值（实现类）
+class CurrentConditionsDisplay(IObserver):
+    def display(self):
+        print('显示当前观测值')
+
+    def update(self, message):
+        # 这里简化了对接收信息的处理
+        print(f&quot;CurrentConditionsDisplay: {message}&quot;)
+
+
+# 观察者 - 最小、平均、最大观测值（实现类）
+class StatisticsDisplay(IObserver):
+    def display(self):
+        print('显示最小、平均、最大观测值')
+
+    def update(self, message):
+        # 这里简化了对接收信息的处理
+        print(f&quot;StatisticsDisplay: {message}&quot;)
+
+
+if __name__ == '__main__':
+    wd = WeatherData()
+    cur = CurrentConditionsDisplay(wd)
+    sta = StatisticsDisplay(wd)
+
+    wd.notify('今天天气晴')
+
+</code></pre>
+<h3 id="poll">Poll</h3>
+<pre><code class="language-python"># 观察者模式：在对象之间定义一对多的依赖，这样一来，当一个对象改变状态，依赖它的对象都会受到通知，并自动更新。
+# Poll模型实现
+# 设计原则：为了交互对象之间的松耦合设计而努力。
+
+# 代码实现
+from abc import ABC, abstractmethod
+
+
+# 主题（接口类）
+# Poll模型
+class ISubject(ABC):
+    @abstractmethod
+    def register(self, observer):
+        pass
+
+    @abstractmethod
+    def remove(self, observer):
+        pass
+
+    # Poll模型中，只通知观察者有新信息，并不发送信息
+    @abstractmethod
+    def notify(self):
+        pass
+
+    # Poll模型中，由观察者主动向主题获取新信息
+    @abstractmethod
+    def get_message(self):
+        pass
+
+
+# 观察者（接口类）
+class IObserver(ABC):
+
+    def __init__(self, subject):
+        self.subject = subject
+        self.subject.register(self)
+
+    @abstractmethod
+    def display(self):
+        pass
+
+    @abstractmethod
+    def update(self):
+        pass
+
+
+# 主题 - 天气气象站（实现类）
+class WeatherData(ISubject):
+    def __init__(self):
+        self.observers = []
+        self.message = ''
+
+    def register(self, observer: IObserver):
+        self.observers.append(observer)
+
+    def remove(self, observer: IObserver):
+        self.observers.remove(observer)
+
+    def notify(self):
+        for observer in self.observers:
+            observer.update()
+
+    def update_message(self, message):
+        self.message = message
+
+    def get_message(self):
+        return self.message
+
+
+# 观察者 - 当前观测值（实现类）
+class CurrentConditionsDisplay(IObserver):
+    def display(self):
+        print('显示当前观测值')
+
+    def update(self):
+        # 这里简化了对接收信息的处理
+        print(f&quot;CurrentConditionsDisplay: {self.subject.get_message()}&quot;)
+
+
+# 观察者 - 最小、平均、最大观测值（实现类）
+class StatisticsDisplay(IObserver):
+    def display(self):
+        print('显示最小、平均、最大观测值')
+
+    def update(self):
+        # 这里简化了对接收信息的处理
+        print(f&quot;StatisticsDisplay: {self.subject.get_message()}&quot;)
+
+
+if __name__ == '__main__':
+    wd = WeatherData()
+    cur = CurrentConditionsDisplay(wd)
+    sta = StatisticsDisplay(wd)
+
+    wd.update_message('今天天气晴')
+    wd.notify()
+
+</code></pre>
+<h2 id="3-decorator-pattern装饰者模式">3. Decorator Pattern装饰者模式</h2>
+<pre><code class="language-python"># 装饰者模式：动态地将责任附加到对象上。想要扩展功能，装饰者提供有别于继承的另一种选择。
+# 设计原则：应该对扩展开放，对修改关闭。（开闭原则）
+
+# 代码实现
+from abc import ABC, abstractmethod
+
+
+# 饮料（抽象类）
+class Beverage(ABC):
+    def __init__(self):
+        self.description = 'Unknown Beverage'
+
+    def get_description(self):
+        return self.description
+
+    @abstractmethod
+    def cost(self):
+        pass
+
+
+# 具体组件 - HouseBlend
+class HouseBlend(Beverage):
+    def __init__(self):
+        self.description = 'HouseBlend'
+
+    def cost(self):
+        return 1.0
+
+
+# 具体组件 - Espresso
+class Espresso(Beverage):
+    def __init__(self):
+        self.description = 'Espresso'
+
+    def cost(self):
+        return 1.5
+
+
+# 具体组件 - DarkRoast
+class DarkRoast(Beverage):
+    def __init__(self):
+        self.description = 'DarkRoast'
+
+    def cost(self):
+        return 1.2
+
+
+# 调味装饰者（抽象类）
+class CondimentDecorator(Beverage):
+    @abstractmethod
+    def get_description(self):
+        pass
+
+
+# 具体调味装饰者 - Milk
+class Milk(CondimentDecorator):
+    def __init__(self, beverage: Beverage):
+        self.description = 'Milk'
+        self.beverage = beverage
+
+    def get_description(self):
+        return f&quot;{self.beverage.get_description()}, {self.description}&quot;
+
+    def cost(self):
+        return self.beverage.cost() + 0.5
+
+
+# 具体调味装饰者 - Mocha
+class Mocha(CondimentDecorator):
+    def __init__(self, beverage: Beverage):
+        self.description = 'Mocha'
+        self.beverage = beverage
+
+    def get_description(self):
+        return f&quot;{self.beverage.get_description()}, {self.description}&quot;
+
+    def cost(self):
+        return self.beverage.cost() + 0.8
+
+
+# 具体调味装饰者 - Soy
+class Soy(CondimentDecorator):
+    def __init__(self, beverage: Beverage):
+        self.description = 'Soy'
+        self.beverage = beverage
+
+    def get_description(self):
+        return f&quot;{self.beverage.get_description()}, {self.description}&quot;
+
+    def cost(self):
+        return self.beverage.cost() + 0.3
+
+
+if __name__ == '__main__':
+    beverage = Espresso()
+    beverage = Mocha(beverage)
+    beverage = Soy(beverage)
+    print(f&quot;{beverage.get_description()} ¥{round(beverage.cost(), 2)}&quot;)
+
+</code></pre>
+<h2 id="4-factory-pattern工厂模式">4. Factory Pattern工厂模式</h2>
+<h3 id="factory">Factory</h3>
+<pre><code class="language-python"># 工厂方法模式：定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类把实例化推迟到子类。
+# 设计原则：依赖抽象，不要依赖具体类。
+
+
+# 代码实现
+from abc import ABC, abstractmethod
+
+
+# 披萨店的产品类（接口类）
+class Pizza(ABC):
+    def __init__(self):
+        self.name = ''
+        self.dough = ''
+        self.sauce = ''
+        self.toppings = []
+
+    # 准备工作
+    def prepare(self):
+        print(f'Preparing {self.name}')
+        print(f'Tossing dough...')
+        print(f'Adding sauce...')
+        print(f'Adding toppings: ')
+        for topping in self.toppings:
+            print(f'  {topping}')
+
+    # 烘烤
+    def bake(self):
+        print('Bake for 25 minutes at 350')
+
+    # 切块
+    def cut(self):
+        print('Cutting the pizza into diagonal slices')
+
+    # 打包
+    def box(self):
+        print('Place pizza in official PizzaStore box')
+
+    # 获取名称
+    def get_name(self):
+        return self.name
+
+
+# 纽约披萨（产品实现类）
+class NewYorkStyleCheesePizza(Pizza):
+    def __init__(self):
+        super().__init__()
+        self.name = 'NewYork Style Sauce and Cheese Pizza'
+        self.dough = 'Thin Crust Dough'
+        self.sauce = 'Marinara Sauce'
+        self.toppings.append('Grated Reggiano Cheese')
+
+
+# 芝加哥披萨（产品实现类）
+class ChicagoStyleCheesePizza(Pizza):
+    def __init__(self):
+        super().__init__()
+        self.name = 'Chicago Style Deep Dish Cheese Pizza'
+        self.dough = 'Extra Tick Crust Dough'
+        self.sauce = 'Plum Tomato Sauce'
+        self.toppings.append('Shredded Mozzarella Cheese')
+
+    def cut(self):
+        print('Cutting the pizza into square slices')
+
+
+# 披萨店类（接口类）
+class PizzaStore(ABC):
+    @abstractmethod
+    def _create_pizza(self, pizza_type) -&gt; Pizza:
+        pass
+
+    def order_pizza(self, pizza_type):
+        pizza = self._create_pizza(pizza_type)
+        pizza.prepare()
+        pizza.bake()
+        pizza.cut()
+        pizza.box()
+
+        return pizza
+
+
+# 纽约披萨店类（实现类）
+class NewYorkPizzaStore(PizzaStore):
+    def _create_pizza(self, pizza_type):
+        if pizza_type == 'cheese':
+            return NewYorkStyleCheesePizza()
+
+
+# 纽约披萨店类（实现类）
+class ChicagoPizzaStore(PizzaStore):
+    def _create_pizza(self, pizza_type):
+        if pizza_type == 'cheese':
+            return ChicagoStyleCheesePizza()
+
+
+if __name__ == '__main__':
+    # 纽约店
+    newyork_store = NewYorkPizzaStore()
+    newyork_store.order_pizza('cheese')
+    # 芝加哥店
+    chicago_store = ChicagoPizzaStore()
+    chicago_store.order_pizza('cheese')
+
+</code></pre>
+<h3 id="abstract-factory">Abstract Factory</h3>
+<pre><code class="language-python"># 抽象工厂模式：提供一个接口，用于创建相关或依赖对象的家族，而不需要明确指定具体类。
+
+
+# 代码实现
+from abc import ABC, abstractmethod
+
+
+# 面团（接口类）
+class Dough(ABC):
+    def __init__(self):
+        self.name = ''
+
+    def get(self):
+        return self.name
+
+
+# 厚披萨面团（实现类）
+class ThickCrustDough(Dough):
+    def __init__(self):
+        self.name = 'Thick Crust Dough'
+
+
+# 薄披萨面团（实现类）
+class ThinCrustDough(Dough):
+    def __init__(self):
+        self.name = 'Thin Crust Dough'
+
+
+# 酱汁（接口类）
+class Sauce(ABC):
+    def __init__(self):
+        self.name = ''
+
+    def get(self):
+        return self.name
+
+
+# 李子番茄酱（实现类）
+class PlumTomatoSauce(Sauce):
+    def __init__(self):
+        self.name = 'Plum Tomato Sauce'
+
+
+# 海员式沙司酱（实现类）
+class MarinaraSauce(Sauce):
+    def __init__(self):
+        self.name = 'Marinara Sauce'
+
+
+# 蛤蜊（接口类）
+class Clam(ABC):
+    def __init__(self):
+        self.name = ''
+
+    def get(self):
+        return self.name
+
+
+# 冰冻蛤蜊（实现类）
+class FrozenClam(Clam):
+    def __init__(self):
+        self.name = 'Frozen Clam'
+
+
+# 新鲜蛤蜊（实现类）
+class FreshClam(Clam):
+    def __init__(self):
+        self.name = 'Fresh Clam'
+
+
+# 芝士（接口类）
+class Cheese(ABC):
+    def __init__(self):
+        self.name = ''
+
+    def get(self):
+        return self.name
+
+
+# 马苏里拉芝士（实现类）
+class MozzarellaCheese(Cheese):
+    def __init__(self):
+        self.name = 'Mozzarella Cheese'
+
+
+# 巴马干酪芝士（实现类）
+class ReggianoCheese(Cheese):
+    def __init__(self):
+        self.name = 'Reggiano Cheese'
+
+
+# 披萨原料工厂类（接口类）
+class PizzaIngredientFactory(ABC):
+    @abstractmethod
+    def create_dough(self):
+        pass
+
+    @abstractmethod
+    def create_sauce(self):
+        pass
+
+    @abstractmethod
+    def create_cheese(self):
+        pass
+
+    @abstractmethod
+    def create_veggies(self):
+        pass
+
+    @abstractmethod
+    def create_pepperoni(self):
+        pass
+
+    @abstractmethod
+    def create_clam(self):
+        pass
+
+
+# 纽约披萨原料工厂类（实现类）
+class NewYorkPizzaIngredientFactory(PizzaIngredientFactory):
+    def create_dough(self):
+        return ThinCrustDough().get()
+
+    def create_sauce(self):
+        return MarinaraSauce().get()
+
+    def create_cheese(self):
+        return ReggianoCheese().get()
+
+    def create_veggies(self):
+        pass
+
+    def create_pepperoni(self):
+        pass
+
+    def create_clam(self):
+        return FreshClam().get()
+
+
+# 芝加哥披萨原料工厂类（实现类）
+class ChicagoPizzaIngredientFactory(PizzaIngredientFactory):
+    def create_dough(self):
+        return ThickCrustDough().get()
+
+    def create_sauce(self):
+        return PlumTomatoSauce().get()
+
+    def create_cheese(self):
+        return MozzarellaCheese().get()
+
+    def create_veggies(self):
+        pass
+
+    def create_pepperoni(self):
+        pass
+
+    def create_clam(self):
+        return FrozenClam().get()
+
+
+# 披萨店的产品类（接口类）
+class Pizza(ABC):
+    def __init__(self):
+        self.name = ''
+        self.dough = ''  # 面团
+        self.sauce = ''  # 酱汁
+        self.veggies = []  # 蔬菜
+        self.cheese = ''  # 芝士
+        self.pepperoni = ''  # 香肠
+        self.clam = ''  # 蛤蜊
+
+    # 准备工作（注意：这里变了）
+    @abstractmethod
+    def prepare(self):
+        pass
+
+    # 烘烤
+    def bake(self):
+        print('Bake for 25 minutes at 350')
+
+    # 切块
+    def cut(self):
+        print('Cutting the pizza into diagonal slices')
+
+    # 打包
+    def box(self):
+        print('Place pizza in official PizzaStore box')
+
+    # 设置名称
+    def set_name(self, name):
+        self.name = name
+
+    # 获取名称
+    def get_name(self):
+        return self.name
+
+
+# 芝士披萨（实现类）
+class CheesePizza(Pizza):
+    def __init__(self, pizza_ingredient_factory: PizzaIngredientFactory):
+        super().__init__()
+        self.pizza_ingredient_factory = pizza_ingredient_factory
+
+    def prepare(self):
+        print(f'Preparing {self.name}')
+        self.dough = self.pizza_ingredient_factory.create_dough()
+        print(f'Tossing {self.dough}')
+        self.sauce = self.pizza_ingredient_factory.create_sauce()
+        print(f'Adding {self.sauce}')
+        self.cheese = self.pizza_ingredient_factory.create_cheese()
+        print(f'Adding {self.cheese}')
+
+
+# 蛤蜊披萨（实现类）
+class ClamPizza(Pizza):
+    def __init__(self, pizza_ingredient_factory: PizzaIngredientFactory):
+        super().__init__()
+        self.pizza_ingredient_factory = pizza_ingredient_factory
+
+    def prepare(self):
+        print(f'Preparing {self.name}')
+        self.dough = self.pizza_ingredient_factory.create_dough()
+        print(f'Tossing {self.dough}')
+        self.sauce = self.pizza_ingredient_factory.create_sauce()
+        print(f'Adding {self.sauce}')
+        self.cheese = self.pizza_ingredient_factory.create_cheese()
+        print(f'Adding {self.cheese}')
+        self.clam = self.pizza_ingredient_factory.create_clam()
+        print(f'Adding {self.clam}')
+
+
+# 披萨店类（接口类）
+class PizzaStore(ABC):
+    @abstractmethod
+    def _create_pizza(self, pizza_type) -&gt; Pizza:
+        pass
+
+    def order_pizza(self, pizza_type):
+        pizza = self._create_pizza(pizza_type)
+        pizza.prepare()
+        pizza.bake()
+        pizza.cut()
+        pizza.box()
+
+        return pizza
+
+
+# 纽约披萨店（实现类）
+class NewYorkPizzaStore(PizzaStore):
+    def _create_pizza(self, pizza_type) -&gt; Pizza:
+        ingredient_factory = NewYorkPizzaIngredientFactory()
+        if pizza_type == 'cheese':
+            pizza = CheesePizza(ingredient_factory)
+            pizza.set_name('New York Style Cheese Pizza')
+        elif pizza_type == 'clam':
+            pizza = ClamPizza(ingredient_factory)
+            pizza.set_name('New York Style Clam Pizza')
+
+        return pizza
+
+
+# 芝加哥披萨店（实现类）
+class ChicagoPizzaStore(PizzaStore):
+    def _create_pizza(self, pizza_type) -&gt; Pizza:
+        ingredient_factory = ChicagoPizzaIngredientFactory()
+        if pizza_type == 'cheese':
+            pizza = CheesePizza(ingredient_factory)
+            pizza.set_name('Chicago Style Cheese Pizza')
+        elif pizza_type == 'clam':
+            pizza = ClamPizza(ingredient_factory)
+            pizza.set_name('Chicago Style Clam Pizza')
+
+        return pizza
+
+
+if __name__ == '__main__':
+    newyork_store = NewYorkPizzaStore()
+    newyork_store.order_pizza('cheese')
+
+    chicago_store = ChicagoPizzaStore()
+    chicago_store.order_pizza('cheese')
+
+</code></pre>
+<h2 id="5-singleton-pattern单例类模式">5. Singleton Pattern单例类模式</h2>
+<pre><code class="language-python"># 单例模式：确保一个类只有一个实例，并提供全局访问点。
+import time
+import threading
+
+
+# 代码实现
+# 单例类装饰器
+def SingletonDecorator(cls):
+    _instances = {}
+
+    def _singleton(*args, **kwargs):
+        if cls not in _instances:
+            _instances[cls] = cls(*args, **kwargs)
+        return _instances[cls]
+
+    return _singleton
+
+
+# 单例类装饰器测试
+@SingletonDecorator
+class SingletonDecoratorTest:
+    def __init__(self):
+        self._connector_pool = 5  # 初始化5个连接器的连接池
+
+    def get_connector(self):
+        if self._connector_pool &gt; 0:
+            connector = self._connector_pool
+            self._connector_pool -= 1  # 连接池中的连接器-1
+            return connector  # 返回连接器
+        else:
+            return -1
+
+
+# 单例类 - 懒汉
+class SingletonClass1:
+    def __init__(self, *args, **kwargs):
+        time.sleep(1)  # 没有延迟，执行速度快，出现错误几率很低，但如果__init__中有阻塞就非常明显
+        pass
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        # 利用反射，查看类有没有_instance属性
+        if not hasattr(cls, '_instance'):
+            cls._instance = SingletonClass1(*args, **kwargs)
+
+        return cls._instance
+
+
+# 单例类 - 饿汉
+class SingletonClass2:
+    def __init__(self, *args, **kwargs):
+        time.sleep(1)  # 没有延迟，执行速度快，出现错误几率很低，但如果__init__中有阻塞就非常明显
+        pass
+
+    def __new__(cls):
+        # 如果类没有实例属性，进行实例化，否则返回实例
+        if not hasattr(cls, '_instance'):
+            cls._instance = super(SingletonClass2, cls).__new__(cls)
+        return cls._instance
+
+
+# 多线程单例类
+class MultiThreadSingletonClass1:
+    _instance_lock = threading.Lock()  # 采用加锁，来解决阻塞出现“多实例”的问题
+
+    def __init__(self, *args, **kwargs):
+        time.sleep(1)
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        # 利用反射，查看类有没有_instance属性
+        if not hasattr(cls, '_instance'):  # 第一次查询
+            with MultiThreadSingletonClass1._instance_lock:  # 加锁
+                if not hasattr(cls, '_instance'):  # 第二次查询
+                    MultiThreadSingletonClass1._instance = MultiThreadSingletonClass1(*args, **kwargs)
+
+        return MultiThreadSingletonClass1._instance
+
+
+# 多线程单例类 - 利用__new__方法实现
+class MultiThreadSingletonClass2:
+    _instance_lock = threading.Lock()
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '_instance'):
+            with MultiThreadSingletonClass2._instance_lock:
+                if not hasattr(cls, '_instance'):
+                    MultiThreadSingletonClass2._instance = super().__new__(cls)
+
+        return MultiThreadSingletonClass2._instance
+
+
+if __name__ == '__main__':
+    # 单例类装饰器
+    # test = SingletonDecoratorTest()
+    # for i in range(5):
+    #     print(test.get_connector())
+
+    # 单例类 - 多线程懒汉（不适合多线程）
+    # def task(arg):
+    #     obj = SingletonClass1.get_instance(arg)
+    #     print(obj)
+    #
+    #
+    # for i in range(10):
+    #     t = threading.Thread(target=task, args=[i, ])
+    #     t.start()
+
+    # 单例类 - 多线程饿汉
+    # def task():
+    #     obj = SingletonClass2()
+    #     print(obj)
+    #
+    #
+    # for i in range(10):
+    #     t = threading.Thread(target=task)
+    #     t.start()
+
+    # 多线程单例类1
+    # def task1(arg):
+    #     obj = MultiThreadSingletonClass1.get_instance(arg)
+    #     print(obj)
+    #
+    #
+    # for i in range(10):
+    #     t = threading.Thread(target=task1, args=[i, ])
+    #     t.start()
+
+    # 多线程单例类2
+    # def task2():
+    #     obj = MultiThreadSingletonClass2()
+    #     print(obj)
+    #
+    #
+    # for i in range(10):
+    #     t = threading.Thread(target=task2)
+    #     t.start()
+    pass
+
+</code></pre>
+<h2 id="6-command-pattern命令模式">6. Command Pattern命令模式</h2>
+<pre><code class="language-python"># 命令模式：将请求封装成对象，这可以让你使用不同的请求、队列，或者日志请求来参数化其他对象。命令模式也可以支持撤销操作。
+
+
+# 代码实现
+from abc import ABC, abstractmethod
+
+
+# 灯
+class Light:
+    def on(self):
+        print('Light is on.')
+
+    def off(self):
+        print('Light is off.')
+
+
+# 风扇
+class CeilingFan:
+    def on(self):
+        print('CeilingFan is on.')
+
+    def off(self):
+        print('CeilingFan is off.')
+
+
+# 命令（接口类）
+class Command(ABC):
+    @abstractmethod
+    def execute(self):
+        pass
+
+    @abstractmethod
+    def undo(self):
+        pass
+
+
+# 空命令（实现类）
+class NoCommand(Command):
+    def execute(self):
+        pass
+
+    def undo(self):
+        pass
+
+
+# 开灯命令（实现类）
+class LightOnCommand(Command):
+    def __init__(self, light: Light):
+        self.light = light
+
+    def execute(self):
+        self.light.on()
+
+    def undo(self):
+        self.light.off()
+
+
+# 关灯命令（实现类）
+class LightOffCommand(Command):
+    def __init__(self, light: Light):
+        self.light = light
+
+    def execute(self):
+        self.light.off()
+
+    def undo(self):
+        self.light.on()
+
+
+# 开风扇命令（实现类）
+class CeilingFanOnCommand(Command):
+    def __init__(self, ceilingfan: CeilingFan):
+        self.ceilingfan = ceilingfan
+
+    def execute(self):
+        self.ceilingfan.on()
+
+    def undo(self):
+        self.ceilingfan.off()
+
+
+# 关风扇命令（实现类）
+class CeilingFanOffCommand(Command):
+    def __init__(self, ceilingfan: CeilingFan):
+        self.ceilingfan = ceilingfan
+
+    def execute(self):
+        self.ceilingfan.off()
+
+    def undo(self):
+        self.ceilingfan.on()
+
+
+# 简单遥控器
+class SimpleRemoteControl:
+    def set_command(self, command: Command):
+        self.slot = command
+
+    def button_was_pressed(self):
+        self.slot.execute()
+
+
+# 高级点的遥控器（包含多个开和关按键）
+class RemoteControl:
+    def __init__(self):
+        self.on_commands = dict()
+        self.off_commands = dict()
+
+    def set_command(self, slot: int, on_command: Command, off_command: Command):
+        self.on_commands[slot] = on_command
+        self.off_commands[slot] = off_command
+
+    def on_button_was_pushed(self, slot: int):
+        self.on_commands[slot].execute()
+
+    def off_button_was_pushed(self, slot: int):
+        self.off_commands[slot].execute()
+
+
+# 更高级点的遥控器（包含撤销按键）
+# 假设有5个按键：开/关灯、开/关风扇和撤销
+class RemoteControlWithUndo:
+    def __init__(self):
+        self.on_commands = dict()
+        self.off_commands = dict()
+        for i in range(2):
+            self.on_commands[i] = NoCommand()
+            self.off_commands[i] = NoCommand()
+        self.undo_command = NoCommand()
+
+    def set_command(self, slot: int, on_command: Command, off_command: Command):
+        self.on_commands[slot] = on_command
+        self.off_commands[slot] = off_command
+
+    def on_button_was_pushed(self, slot: int):
+        self.on_commands[slot].execute()
+        self.undo_command = self.on_commands[slot]
+
+    def off_button_was_pushed(self, slot: int):
+        self.off_commands[slot].execute()
+        self.undo_command = self.off_commands[slot]
+
+    def undo_button_was_pushed(self):
+        self.undo_command.undo()
+
+
+# 宏命令
+class MacroCommand(Command):
+    def __init__(self, commands: list):
+        self.commands = commands
+
+    def execute(self):
+        for command in self.commands:
+            command.execute()
+
+    def undo(self):
+        for command in self.commands:
+            command.undo()
+
+
+if __name__ == '__main__':
+    ##
+    # ================== Test1 ==================
+    ##
+    # remote = SimpleRemoteControl()
+    # # remote.set_command(LightOnCommand(Light()))
+    # remote.set_command(LightOffCommand(Light()))
+    # remote.button_was_pressed()
+
+    ##
+    # ================== Test2 ==================
+    ##
+    # remote = RemoteControl()
+    # remote.set_command(0, LightOnCommand(Light()), LightOffCommand(Light()))
+    # remote.set_command(1, CeilingFanOnCommand(CeilingFan()), CeilingFanOffCommand(CeilingFan()))
+    #
+    # remote.on_button_was_pushed(0)
+    # remote.off_button_was_pushed(0)
+    # remote.on_button_was_pushed(1)
+    # remote.off_button_was_pushed(1)
+
+    ##
+    # ================== Test3 ==================
+    ##
+    # remote = RemoteControlWithUndo()
+    # remote.set_command(0, LightOnCommand(Light()), LightOffCommand(Light()))
+    # remote.set_command(1, CeilingFanOnCommand(CeilingFan()), CeilingFanOffCommand(CeilingFan()))
+    #
+    # remote.on_button_was_pushed(0)
+    # remote.undo_button_was_pushed()
+    #
+    # remote.on_button_was_pushed(1)
+    # remote.undo_button_was_pushed()
+    #
+    # remote.off_button_was_pushed(0)
+    # remote.undo_button_was_pushed()
+    #
+    # remote.off_button_was_pushed(1)
+    # remote.undo_button_was_pushed()
+
+    ##
+    # ================== Test3 ==================
+    ##
+    party_on = [LightOnCommand(Light()), CeilingFanOnCommand(CeilingFan())]
+    party_off = [LightOffCommand(Light()), CeilingFanOffCommand(CeilingFan())]
+    party_on_macro = MacroCommand(party_on)
+    party_on_macro.execute()
+    party_on_macro.undo()
+    party_off_macro = MacroCommand(party_off)
+    party_off_macro.execute()
+    party_off_macro.undo()
+
+</code></pre>
+<h2 id="小结">小结</h2>
+<p>本来，应该附上UML类图的，偷懒，没有画完，先欠着吧，等有空了补齐。</p>
+<p>代码分享暂时先到这了，Thanks♪(･ω･)ﾉ。</p>
+
+            </div>
+            
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'Ov23li7NZvXdkUp3HVdm',
+        clientSecret: '907070b9d1c369d1cb97cd4ba3f9a04c0b01c10c',
+        repo: 'Felixchen1024.github.io',
+        owner: 'Felixchen1024',
+        admin: ['Felixchen1024'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

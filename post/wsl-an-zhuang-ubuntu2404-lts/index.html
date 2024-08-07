@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>WSL安装ubuntu24.04 LTS | Felixchen1024</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://felixchen1024.github.io/favicon.ico?v=1723023636606">
+<link rel="stylesheet" href="https://felixchen1024.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="之前用WSL装过ubutu20.04 LTS，没有实际结合项目来使用，正好这次重装一下，升级到24.04，体验一下除了VMware以外的虚拟机。
+
+一、安装
+
+Microsoft Store中搜索ubuntu24.04 LTS点击“获取”，..." />
+    <meta name="keywords" content="WSL,虚拟机,Ubuntu" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://felixchen1024.github.io">
+        <img src="https://felixchen1024.github.io/images/avatar.png?v=1723023636606" class="site-logo">
+        <h1 class="site-title">Felixchen1024</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Felixchen1024" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Scientists study the world as it is, engineers create the world that never has been.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://felixchen1024.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">WSL安装ubuntu24.04 LTS</h2>
+            <div class="post-date">2024-08-06 17:47:50</div>
+            
+            <div class="post-content" v-pre>
+              <p>之前用WSL装过ubutu20.04 LTS，没有实际结合项目来使用，正好这次重装一下，升级到24.04，体验一下除了VMware以外的虚拟机。</p>
+<!-- more -->
+<h1 id="一-安装">一、安装</h1>
+<ol>
+<li>Microsoft Store中搜索ubuntu24.04 LTS点击“获取”，即可自动下载安装</li>
+</ol>
+<h1 id="二-固定ip">二、固定IP</h1>
+<blockquote>
+<p>以下采用固定以太网口IP的方式。</p>
+</blockquote>
+<ol>
+<li>
+<p>配置虚拟交换机</p>
+<ol>
+<li>
+<p>打开Hyper-V 管理器-虚拟交换机管理器<br>
+<img src="https://felixchen1024.github.io/post-images/1722937814542.png" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>修改配置<br>
+<img src="https://felixchen1024.github.io/post-images/1722937825139.png" alt="" loading="lazy"></p>
+ <aside>
+ 💡 如果是创建，可能出现失败，可以找到WLAN/以太网属性，关闭连接共享
+ </aside>
+</li>
+</ol>
+</li>
+<li>
+<p>修改.wslconfig配置文件（中文可能需要去掉，启动时报错）</p>
+<pre><code class="language-yaml">; 这是 WSL 2 的配置文件
+ 
+[wsl2]
+processors=4                            ; 设置 WSL 2 可以使用的最大 CPU 核心数为 4，自行修改
+memory=4GB                              ; 设置 WSL 2 可以使用的最大内存量为 4 GB，自行修改
+swap=4GB                                ; 设置 WSL 2 的交换空间大小为 4 GB，自行修改
+localhostForwarding=true                ; 允许本地主机转发
+networkingMode=bridged                  ; 设置网络模式为桥接模式
+vmSwitch=WSL                            ; 指定使用的虚拟交换机为 &quot;WSL&quot;，这里填虚拟交换机的名称
+ipv6=true                               ; 启用 IPv6 支持
+dhcp=false                              ; 禁用 DHCP，手动设置网络配置
+ 
+[experimental]
+autoMemoryReclaim=gradual               ; 慢慢回收内存
+autoProxy=true                          ; 启用自动代理设置
+</code></pre>
+</li>
+<li>
+<p>虚拟机中，创建/etc/netplan目录下生成net.yaml文件</p>
+<pre><code class="language-yaml">network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses:
+        - 192.168.40.133/24   # 设置一个不与主机相同的IP地址
+      gateway4: 192.168.40.254  # 设置网关地址
+      nameservers:           #dns服务，这下面可以跟我一样
+          addresses:
+              - 8.8.8.8
+              - 8.8.4.4
+              - 114.114.114.114
+</code></pre>
+</li>
+<li>
+<p>启用网络配置</p>
+<pre><code class="language-bash"># 应用网络配置
+netplan apply
+
+# 关闭终端后，重新打开ubuntu24.04 LTS，打印网络信息
+ip addr show ens33
+</code></pre>
+</li>
+<li>
+<p>最终确认配置文件</p>
+<pre><code class="language-bash"># 生效后，文件名称出现变化
+vi /etc/netplan/00-installer-config.yaml
+</code></pre>
+</li>
+</ol>
+<h1 id="三-修改存储路径">三、修改存储路径</h1>
+<p>wsl默认安装在c盘，占用C盘空间，故有必要移动到其他盘符。</p>
+<pre><code class="language-bash"># 查看WSL发行版本
+wsl -l --all -v
+
+# 导出为tar文件
+wsl --export Ubuntu-24.04 e:\wsl-ubuntu24.04.tar
+
+# 注销当前分发版
+wsl --unregister Ubuntu-24.04
+
+# 重新导入并安装WSL在e:\wsl-ubuntu24.04
+wsl --import Ubuntu-24.04 e:\wsl-ubuntu24.04 d:\wsl-ubuntu24.04.tar --version 2
+
+# 删除tar文件
+del e:\wsl-ubuntu24.04.tar
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://felixchen1024.github.io/tag/PzEn-_11C/" class="tag">
+                    WSL
+                  </a>
+                
+                  <a href="https://felixchen1024.github.io/tag/UrneEB5H_6/" class="tag">
+                    虚拟机
+                  </a>
+                
+                  <a href="https://felixchen1024.github.io/tag/4KBKRD6g1V/" class="tag">
+                    Ubuntu
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://felixchen1024.github.io/post/git-ri-chang-shi-yong-zheng-li/">
+                  <h3 class="post-title">
+                    Git日常使用整理
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'Ov23li7NZvXdkUp3HVdm',
+        clientSecret: '907070b9d1c369d1cb97cd4ba3f9a04c0b01c10c',
+        repo: 'Felixchen1024.github.io',
+        owner: 'Felixchen1024',
+        admin: ['Felixchen1024'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

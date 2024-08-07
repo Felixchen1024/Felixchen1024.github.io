@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Ubuntu22.04 Docker部署增加influxdb+emqx | Felixchen1024</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://felixchen1024.github.io/favicon.ico?v=1723023636606">
+<link rel="stylesheet" href="https://felixchen1024.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="在原有docker compose配置中增加influxdb、emqx，实现一个文件几行命令快速搭建整套系统，真是太香了~
+
+| 以下挂载的目录和文件都需要执行777权限。
+influxdb
+基础信息
+版本：v1.8.10
+账号：admin..." />
+    <meta name="keywords" content="Influxdb,EMQX,Docker,Ubuntu" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://felixchen1024.github.io">
+        <img src="https://felixchen1024.github.io/images/avatar.png?v=1723023636606" class="site-logo">
+        <h1 class="site-title">Felixchen1024</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Felixchen1024" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Scientists study the world as it is, engineers create the world that never has been.
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://felixchen1024.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Ubuntu22.04 Docker部署增加influxdb+emqx</h2>
+            <div class="post-date">2024-08-07 17:36:50</div>
+            
+            <div class="post-content" v-pre>
+              <p>在原有docker compose配置中增加influxdb、emqx，实现一个文件几行命令快速搭建整套系统，真是太香了~</p>
+<!-- more -->
+<p>| 以下挂载的目录和文件都需要执行777权限。</p>
+<h1 id="influxdb">influxdb</h1>
+<h2 id="基础信息">基础信息</h2>
+<p>版本：v1.8.10</p>
+<p>账号：admin</p>
+<p>密码：123456</p>
+<h2 id="部署步骤">部署步骤</h2>
+<ol>
+<li>
+<p>初始化配置文件</p>
+<pre><code class="language-bash">docker run --rm influxdb:1.8.10 influxd config &gt; /docker/influxdb/conf/influxdb.conf
+</code></pre>
+</li>
+<li>
+<p>修改配置文件</p>
+<ol>
+<li>
+<p>日志级别</p>
+<pre><code class="language-bash">level = &quot;warn&quot;
+</code></pre>
+</li>
+<li>
+<p>配置登录验证</p>
+<pre><code class="language-bash">auth-enabled = true
+</code></pre>
+</li>
+</ol>
+<ul>
+<li>
+<p>influxdb.conf</p>
+<pre><code class="language-bash">reporting-disabled = false
+bind-address = &quot;127.0.0.1:8088&quot;
+
+[meta]
+  dir = &quot;/var/lib/influxdb/meta&quot;
+  retention-autocreate = true
+  logging-enabled = true
+
+[data]
+  dir = &quot;/var/lib/influxdb/data&quot;
+  index-version = &quot;inmem&quot;
+  wal-dir = &quot;/var/lib/influxdb/wal&quot;
+  wal-fsync-delay = &quot;0s&quot;
+  validate-keys = false
+  strict-error-handling = false
+  query-log-enabled = true
+  cache-max-memory-size = 1073741824
+  cache-snapshot-memory-size = 26214400
+  cache-snapshot-write-cold-duration = &quot;10m0s&quot;
+  compact-full-write-cold-duration = &quot;4h0m0s&quot;
+  compact-throughput = 50331648
+  compact-throughput-burst = 50331648
+  max-series-per-database = 1000000
+  max-values-per-tag = 100000
+  max-concurrent-compactions = 0
+  max-index-log-file-size = 1048576
+  series-id-set-cache-size = 100
+  series-file-max-concurrent-snapshot-compactions = 0
+  trace-logging-enabled = false
+  tsm-use-madv-willneed = false
+
+[coordinator]
+  write-timeout = &quot;10s&quot;
+  max-concurrent-queries = 0
+  query-timeout = &quot;0s&quot;
+  log-queries-after = &quot;0s&quot;
+  max-select-point = 0
+  max-select-series = 0
+  max-select-buckets = 0
+
+[retention]
+  enabled = true
+  check-interval = &quot;30m0s&quot;
+
+[shard-precreation]
+  enabled = true
+  check-interval = &quot;10m0s&quot;
+  advance-period = &quot;30m0s&quot;
+
+[monitor]
+  store-enabled = true
+  store-database = &quot;_internal&quot;
+  store-interval = &quot;10s&quot;
+
+[subscriber]
+  enabled = true
+  http-timeout = &quot;30s&quot;
+  insecure-skip-verify = false
+  ca-certs = &quot;&quot;
+  write-concurrency = 40
+  write-buffer-size = 1000
+
+[http]
+  enabled = true
+  bind-address = &quot;:8086&quot;
+  auth-enabled = true
+  log-enabled = true
+  suppress-write-log = false
+  write-tracing = false
+  flux-enabled = false
+  flux-log-enabled = false
+  pprof-enabled = true
+  pprof-auth-enabled = false
+  debug-pprof-enabled = false
+  ping-auth-enabled = false
+  prom-read-auth-enabled = false
+  https-enabled = false
+  https-certificate = &quot;/etc/ssl/influxdb.pem&quot;
+  https-private-key = &quot;&quot;
+  max-row-limit = 0
+  max-connection-limit = 0
+  shared-secret = &quot;&quot;
+  realm = &quot;InfluxDB&quot;
+  unix-socket-enabled = false
+  unix-socket-permissions = &quot;0777&quot;
+  bind-socket = &quot;/var/run/influxdb.sock&quot;
+  max-body-size = 25000000
+  access-log-path = &quot;&quot;
+  max-concurrent-write-limit = 0
+  max-enqueued-write-limit = 0
+  enqueued-write-timeout = 30000000000
+
+[logging]
+  format = &quot;auto&quot;
+  level = &quot;warn&quot;
+  suppress-logo = false
+
+[[graphite]]
+  enabled = false
+  bind-address = &quot;:2003&quot;
+  database = &quot;graphite&quot;
+  retention-policy = &quot;&quot;
+  protocol = &quot;tcp&quot;
+  batch-size = 5000
+  batch-pending = 10
+  batch-timeout = &quot;1s&quot;
+  consistency-level = &quot;one&quot;
+  separator = &quot;.&quot;
+  udp-read-buffer = 0
+
+[[collectd]]
+  enabled = false
+  bind-address = &quot;:25826&quot;
+  database = &quot;collectd&quot;
+  retention-policy = &quot;&quot;
+  batch-size = 5000
+  batch-pending = 10
+  batch-timeout = &quot;10s&quot;
+  read-buffer = 0
+  typesdb = &quot;/usr/share/collectd/types.db&quot;
+  security-level = &quot;none&quot;
+  auth-file = &quot;/etc/collectd/auth_file&quot;
+  parse-multivalue-plugin = &quot;split&quot;
+
+[[opentsdb]]
+  enabled = false
+  bind-address = &quot;:4242&quot;
+  database = &quot;opentsdb&quot;
+  retention-policy = &quot;&quot;
+  consistency-level = &quot;one&quot;
+  tls-enabled = false
+  certificate = &quot;/etc/ssl/influxdb.pem&quot;
+  batch-size = 1000
+  batch-pending = 5
+  batch-timeout = &quot;1s&quot;
+  log-point-errors = true
+
+[[udp]]
+  enabled = false
+  bind-address = &quot;:8089&quot;
+  database = &quot;udp&quot;
+  retention-policy = &quot;&quot;
+  batch-size = 5000
+  batch-pending = 10
+  read-buffer = 0
+  batch-timeout = &quot;1s&quot;
+  precision = &quot;&quot;
+
+[continuous_queries]
+  log-enabled = true
+  enabled = true
+  query-stats-enabled = false
+  run-interval = &quot;1s&quot;
+
+[tls]
+  min-version = &quot;&quot;
+  max-version = &quot;&quot;
+
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>docker compose配置</p>
+<pre><code class="language-yaml">  influxdb:
+    image: influxdb:1.8.10
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - &quot;8086:8086&quot;
+    volumes:
+      - /docker/influxdb/data:/var/lib/influxdb
+      - /docker/influxdb/conf:/etc/influxdb:ro
+    environment:
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=123456
+    logging:
+      driver: &quot;json-file&quot;
+      options:
+        max-size: &quot;10m&quot;
+        max-file: &quot;3&quot;
+    privileged: true
+    network_mode: &quot;host&quot;
+</code></pre>
+</li>
+</ol>
+<h1 id="emqx">emqx</h1>
+<h2 id="基础信息-2">基础信息</h2>
+<p>版本：v5.7</p>
+<p>账号：admin</p>
+<p>密码：public</p>
+<h2 id="部署步骤-2">部署步骤</h2>
+<ol>
+<li>docker compose配置<pre><code class="language-yaml"> emqx:
+    image: emqx:5.7
+    container_name: emqx
+    restart: unless-stopped
+    ports:
+    - &quot;1883:1883&quot;
+    - &quot;18083:18083&quot;
+    volumes:
+    - /docker/emqx/data:/opt/emqx/data
+    - /docker/emqx/log:/opt/emqx/log
+    logging:
+    driver: &quot;json-file&quot;
+    options:
+        max-size: &quot;10m&quot;
+        max-file: &quot;3&quot;
+    privileged: true
+    network_mode: host
+</code></pre>
+</li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://felixchen1024.github.io/tag/rjozA7le2/" class="tag">
+                    Influxdb
+                  </a>
+                
+                  <a href="https://felixchen1024.github.io/tag/7sXXXBp-Ut/" class="tag">
+                    EMQX
+                  </a>
+                
+                  <a href="https://felixchen1024.github.io/tag/ai_fl90cI/" class="tag">
+                    Docker
+                  </a>
+                
+                  <a href="https://felixchen1024.github.io/tag/4KBKRD6g1V/" class="tag">
+                    Ubuntu
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://felixchen1024.github.io/post/ubuntu2204-da-jian-docker-fa-bu-huan-jing/">
+                  <h3 class="post-title">
+                    Ubuntu22.04搭建Docker发布环境
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'Ov23li7NZvXdkUp3HVdm',
+        clientSecret: '907070b9d1c369d1cb97cd4ba3f9a04c0b01c10c',
+        repo: 'Felixchen1024.github.io',
+        owner: 'Felixchen1024',
+        admin: ['Felixchen1024'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
